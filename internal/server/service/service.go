@@ -89,7 +89,9 @@ func (s *service) sendUpdate(wg *sync.WaitGroup, conn net.Conn, data []byte) {
 	_, err := conn.Write(data)
 	if err != nil {
 		if errors.Is(err, net.ErrClosed) || errors.Is(err, io.EOF) || errors.Is(err, syscall.EPIPE) {
+			s.logger.Warn("clearing an connection")
 			delete(s.connPool, conn)
+			s.logger.Info("current active connection count: ", len(s.connPool))
 			return
 		}
 		s.logger.Errorw("failed to write to conn", "err", err)
